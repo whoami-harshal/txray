@@ -38,7 +38,7 @@ export function ShareLink() {
       }}
       className="inline-flex h-9 items-center gap-2 rounded-lg border bg-background px-3 text-sm hover:bg-muted"
     >
-      {state === "copied" ? <Check className="size-4 text-emerald-600" /> : <Link2 className="size-4" />}
+      {state === "copied" ? <Check className="size-4 text-good" /> : <Link2 className="size-4" />}
       {state === "copied" ? "Link copied" : "Copy share link"}
     </button>
   );

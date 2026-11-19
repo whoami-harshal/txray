@@ -19,7 +19,7 @@ export function CopyButton({ value, label = "Copy" }: { value: string; label?: s
         }
       }}
     >
-      {copied ? <Check className="size-3.5 text-emerald-600" /> : <Copy className="size-3.5" />}
+      {copied ? <Check className="size-3.5 text-good" /> : <Copy className="size-3.5" />}
     </button>
   );
 }

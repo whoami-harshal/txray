@@ -1,17 +1,18 @@
 export type Tone = "good" | "warn" | "bad" | "neutral";
 
 export const TONE_TEXT: Record<Tone, string> = {
-  good: "text-emerald-600",
-  warn: "text-amber-600",
-  bad: "text-red-600",
+  good: "text-good",
+  warn: "text-warn",
+  bad: "text-bad",
   neutral: "text-foreground",
 };
 
+/** CSS variables, so charts follow the light/dark theme. */
 export const CHART_COLORS = {
-  good: "#16a34a",
-  warn: "#d97706",
-  bad: "#dc2626",
-  muted: "#a1a1aa",
+  good: "var(--good)",
+  warn: "var(--warn)",
+  bad: "var(--bad)",
+  muted: "var(--muted-foreground)",
 };
 
 export function pct(n: number | null | undefined, digits = 1): string {

@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
+import { connection } from "next/server";
 import type { Metadata } from "next";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -33,6 +34,7 @@ export default function OverviewPage({ searchParams }: PageProps<"/dashboard">) 
 }
 
 async function Overview({ searchParams }: { searchParams: PageProps<"/dashboard">["searchParams"] }) {
+  await connection(); // stats depend on the current time: always render at request time
   const range = parseRange((await searchParams).range);
   const projectIds = await getViewerProjectIds();
 
@@ -164,7 +166,7 @@ function FailuresCard({ stats }: { stats: DashboardStats }) {
       </CardHeader>
       <CardContent>
         {data.length === 0 ? (
-          <p className="py-8 text-center text-sm text-emerald-600">No failures in this period 🎉</p>
+          <p className="py-8 text-center text-sm text-good">No failures in this period 🎉</p>
         ) : (
           <FailuresChart data={data} />
         )}
@@ -267,7 +269,7 @@ function ComputeWasteCard({ stats }: { stats: DashboardStats }) {
         )}
 
         {success_without_cu_limit > 0 && (
-          <p className="text-xs text-amber-700">
+          <p className="text-xs text-warn">
             {int(success_without_cu_limit)} successful transactions set no CU limit (default 200,000 per
             instruction). Setting one is the easiest fee saving.
           </p>

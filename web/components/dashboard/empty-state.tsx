@@ -20,7 +20,7 @@ await txray.trackSend(() => connection.sendRawTransaction(tx.serialize()), {
 
 export function SdkSnippet() {
   return (
-    <pre className="mt-4 overflow-x-auto rounded-lg bg-zinc-950 p-4 text-left text-xs leading-relaxed text-zinc-100">
+    <pre className="mt-4 overflow-x-auto rounded-lg bg-zinc-950 p-4 text-left text-xs leading-relaxed text-zinc-100 ring-1 ring-border">
       <code>{SDK_SNIPPET}</code>
     </pre>
   );

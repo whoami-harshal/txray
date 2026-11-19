@@ -88,32 +88,65 @@ export async function saveCheckup(report: CheckupReport): Promise<string> {
   throw new Error("could not allocate a slug");
 }
 
-export interface RecentCheckup {
+export interface CheckupSummary {
   slug: string;
   address: string;
   score: number;
   failureRate: number;
+  total: number;
   kind: string;
   created_at: string;
 }
 
-/** Latest reports, one per address, for the "recent checkups" list. */
-export async function getRecentCheckups(limit = 6): Promise<RecentCheckup[]> {
+const SUMMARY_COLUMNS =
+  "slug, address, created_at, score:report->score, failureRate:report->failureRate, total:report->total, kind:report->>kind";
+
+/**
+ * Latest report per address. Programs only: wallets belong to people, so they're never listed
+ * publicly (their share links still work for whoever has them).
+ */
+async function latestPerProgram(scan: number): Promise<CheckupSummary[]> {
   const { data, error } = await supabaseAdmin()
     .from("checkups")
-    .select("slug, address, created_at, score:report->score, failureRate:report->failureRate, kind:report->>kind")
+    .select(SUMMARY_COLUMNS)
+    .eq("report->>kind", "program")
     .order("created_at", { ascending: false })
-    .limit(50);
+    .limit(scan);
   if (error) throw error;
   const seen = new Set<string>();
-  const out: RecentCheckup[] = [];
-  for (const row of (data ?? []) as unknown as RecentCheckup[]) {
+  const out: CheckupSummary[] = [];
+  for (const row of (data ?? []) as unknown as CheckupSummary[]) {
     if (seen.has(row.address)) continue;
     seen.add(row.address);
-    out.push({ ...row, score: Number(row.score), failureRate: Number(row.failureRate) });
-    if (out.length >= limit) break;
+    out.push({ ...row, score: Number(row.score), failureRate: Number(row.failureRate), total: Number(row.total) });
   }
   return out;
+}
+
+export async function getRecentCheckups(limit = 6): Promise<CheckupSummary[]> {
+  return (await latestPerProgram(100)).slice(0, limit);
+}
+
+/** Every checked program ranked by health score (ties: lower failure rate first). */
+export async function getLeaderboard(limit = 100): Promise<CheckupSummary[]> {
+  return (await latestPerProgram(2000))
+    .sort((a, b) => b.score - a.score || a.failureRate - b.failureRate)
+    .slice(0, limit);
+}
+
+/** Social proof for the landing page. */
+export async function getSiteStats(): Promise<{ checkups: number; transactions: number; programs: number }> {
+  const { data, error } = await supabaseAdmin()
+    .from("checkups")
+    .select("address, total:report->total, kind:report->>kind")
+    .limit(5000);
+  if (error) throw error;
+  const rows = (data ?? []) as unknown as { address: string; total: number; kind: string }[];
+  return {
+    checkups: rows.length,
+    transactions: rows.reduce((sum, r) => sum + Number(r.total ?? 0), 0),
+    programs: new Set(rows.filter((r) => r.kind === "program").map((r) => r.address)).size,
+  };
 }
 
 export async function getCheckup(slug: string): Promise<{ report: CheckupReport; created_at: string } | null> {
