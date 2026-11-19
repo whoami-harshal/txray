@@ -1,7 +1,7 @@
 /** Rename the app here: everything else reads from this. */
 export const SITE = {
   name: "TxRay",
-  tagline: "X-ray your Solana transactions.",
+  tagline: "TX-ray your Solana txs.",
   description:
     "Free Solana transaction checkup: failure rate, why transactions fail, fees and compute waste for any program or wallet.",
   /** Optional: shown in the footer when set */

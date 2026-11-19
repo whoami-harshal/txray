@@ -42,8 +42,8 @@ function Hero() {
             <span className="size-1.5 rounded-full bg-good shadow-[0_0_8px_var(--good)]" />
             Free · No signup · Solana mainnet
           </span>
-          <h1 className="mt-5 text-4xl font-semibold tracking-tight sm:text-6xl">
-            <span className="text-gradient">X-ray</span> your Solana transactions.
+          <h1 className="mt-5 text-4xl font-semibold tracking-tight text-balance sm:text-6xl">
+            <span className="text-gradient">TX-ray</span> your Solana txs.
           </h1>
           <p className="mt-5 max-w-xl text-lg text-muted-foreground">
             Paste any program or wallet. In seconds, see how many transactions fail on-chain, exactly why, how much

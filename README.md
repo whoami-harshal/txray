@@ -1,6 +1,6 @@
 # TxRay
 
-**X-ray your Solana transactions.** Find out which of them land, fail, or expire, and why.
+**TX-ray your Solana txs.** Find out which of them land, fail, or expire, and why.
 
 A "sent" Solana transaction can still fail on-chain, expire before it lands, or quietly vanish. Most apps never find out which, or why. TxRay shows you.
 
