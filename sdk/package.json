@@ -1,0 +1,48 @@
+{
+  "name": "@txdoctor/sdk",
+  "version": "0.1.0",
+  "description": "Track whether your Solana transactions land, fail, or expire — and why.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "sideEffects": false,
+  "keywords": [
+    "solana",
+    "transactions",
+    "monitoring",
+    "helius",
+    "landing-rate"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "packageManager": "pnpm@9.15.4",
+  "devDependencies": {
+    "@solana/kit": "^8.6.0",
+    "@solana/web3.js": "1",
+    "@types/node": "22",
+    "tsup": "^9.0.0",
+    "typescript": "^5.9.3",
+    "vitest": "^5.1.1"
+  }
+}
