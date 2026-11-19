@@ -11,8 +11,27 @@ if (!key) {
   process.exit(1);
 }
 
-const B58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
-const fakeSig = () => Array.from(randomBytes(88), (b) => B58[b % 58]).join("");
+function encodeBase58(bytes) {
+  const A = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+  let zeros = 0;
+  while (zeros < bytes.length && bytes[zeros] === 0) zeros++;
+  const digits = [];
+  for (let i = zeros; i < bytes.length; i++) {
+    let carry = bytes[i];
+    for (let j = 0; j < digits.length; j++) {
+      carry += digits[j] << 8;
+      digits[j] = carry % 58;
+      carry = (carry / 58) | 0;
+    }
+    while (carry > 0) {
+      digits.push(carry % 58);
+      carry = (carry / 58) | 0;
+    }
+  }
+  return "1".repeat(zeros) + digits.reverse().map((d) => A[d]).join("");
+}
+// A valid but never-sent signature: base58 of 64 random bytes.
+const fakeSig = () => encodeBase58(randomBytes(64));
 
 const label = `smoke-${Date.now()}`;
 const now = new Date().toISOString();

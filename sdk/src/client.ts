@@ -5,6 +5,7 @@ import {
   MAX_QUEUE,
   MAX_RETRIES,
 } from "./constants";
+import { decodeBase58 } from "./base58";
 import { extractTxInfo } from "./parse";
 
 export type SendPath = "sender" | "rpc" | "other";
@@ -65,7 +66,10 @@ export interface TxDoctor {
 }
 
 const VALID_PATHS = new Set<SendPath>(["sender", "rpc", "other"]);
-const SIG_RE = /^[1-9A-HJ-NP-Za-km-z]{64,90}$/;
+/** A signature is base58 that decodes to exactly 64 bytes. */
+function isValidSignature(sig: string): boolean {
+  return sig.length >= 64 && sig.length <= 90 && decodeBase58(sig)?.length === 64;
+}
 
 function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
@@ -115,7 +119,7 @@ export function createTxDoctor(options: TxDoctorOptions): TxDoctor {
     const info = extractTxInfo(input.transaction);
     const signature =
       input.signature ?? info.signature ?? (typeof fallbackSig === "string" ? fallbackSig : undefined);
-    if (!signature || !SIG_RE.test(signature)) {
+    if (!signature || !isValidSignature(signature)) {
       log("could not determine a valid signature; skipping");
       return undefined;
     }

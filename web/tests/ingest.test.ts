@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { ingestSchema, toRows } from "@/lib/ingest";
 import { generateApiKey, hashApiKey, keyPrefix, parseBearer } from "@/lib/apikey";
+import { sig } from "./helpers";
+import { isValidSignature } from "@/lib/solana/signature";
 
-const SIG = "5".repeat(88);
+const SIG = sig("ingest");
 
 describe("ingest schema", () => {
   it("accepts SDK events and normalizes bigints to strings", () => {
@@ -31,6 +33,14 @@ describe("ingest schema", () => {
     ).toBe(false);
     const many = Array.from({ length: 501 }, () => ({ signature: SIG, sent_at: "2026-11-19T10:00:00Z" }));
     expect(ingestSchema.safeParse({ events: many }).success).toBe(false);
+  });
+
+  it("only accepts base58 strings that decode to 64 bytes", () => {
+    expect(isValidSignature(SIG)).toBe(true);
+    expect(isValidSignature("z".repeat(88))).toBe(false); // decodes to 65 bytes
+    expect(isValidSignature("1".repeat(64))).toBe(true); // 64 zero bytes
+    expect(isValidSignature("abc")).toBe(false);
+    expect(isValidSignature(42)).toBe(false);
   });
 
   it("toRows dedupes signatures and sets pending", () => {

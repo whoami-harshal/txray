@@ -10,7 +10,8 @@
     "test": "vitest run",
     "dev:key": "node --env-file=.env.local scripts/create-dev-key.mjs",
     "db:check": "node --env-file=.env.local scripts/check-db.mjs",
-    "smoke:ingest": "node --env-file=.env.local scripts/smoke-ingest.mjs"
+    "smoke:ingest": "node --env-file=.env.local scripts/smoke-ingest.mjs",
+    "smoke:tracker": "node --env-file=.env.local scripts/smoke-tracker.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

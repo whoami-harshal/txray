@@ -1,8 +1,7 @@
 import { z } from "zod";
+import { isValidSignature } from "@/lib/solana/signature";
 
 export const MAX_EVENTS_PER_REQUEST = 500;
-
-const SIGNATURE = /^[1-9A-HJ-NP-Za-km-z]{64,90}$/;
 
 /** Accept bigint-ish values as JSON number or decimal string; store as string for Postgres bigint. */
 const bigintLike = z
@@ -10,7 +9,7 @@ const bigintLike = z
   .transform((v) => String(v));
 
 export const eventSchema = z.object({
-  signature: z.string().regex(SIGNATURE, "invalid signature"),
+  signature: z.string().refine(isValidSignature, "invalid signature (must be base58 of 64 bytes)"),
   sent_at: z.iso.datetime({ offset: true }),
   path: z.enum(["sender", "rpc", "other"]).default("other"),
   label: z.string().max(100).optional(),
