@@ -25,7 +25,7 @@ export default function Home() {
       <SiteHeader />
       <main className="flex-1">
         <section className="mx-auto max-w-4xl px-4 pt-20 pb-16 sm:px-6 sm:pt-28">
-          <p className="text-sm font-medium text-muted-foreground">For Solana developers</p>
+          <p className="text-sm font-medium text-muted-foreground">{SITE.tagline}</p>
           <h1 className="mt-3 max-w-2xl text-4xl font-semibold tracking-tight sm:text-5xl">
             Find out why your Solana transactions don&apos;t land.
           </h1>

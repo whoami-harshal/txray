@@ -1,4 +1,4 @@
--- Transaction Doctor: initial schema
+-- TxRay: initial schema
 -- Paste into the Supabase SQL editor (or run with `supabase db push`).
 -- Server API routes use the service role key, which bypasses RLS.
 -- RLS below only governs what a logged-in user can read with the anon key.

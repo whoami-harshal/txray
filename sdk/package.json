@@ -1,5 +1,5 @@
 {
-  "name": "@txdoctor/sdk",
+  "name": "@txray/sdk",
   "version": "0.1.0",
   "description": "Track whether your Solana transactions land, fail, or expire — and why.",
   "license": "MIT",

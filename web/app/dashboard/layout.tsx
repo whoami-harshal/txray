@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { SITE } from "@/lib/site";
+import { Logo } from "@/components/logo";
 import { isDemoMode } from "@/lib/scope";
 import { DashboardNav } from "@/components/dashboard/nav";
 
@@ -17,10 +17,7 @@ export default function DashboardLayout({ children }: LayoutProps<"/dashboard">)
       )}
       <header className="sticky top-0 z-10 border-b bg-background/90 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4 sm:gap-6 sm:px-6">
-          <Link href="/" className="flex shrink-0 items-center gap-2 font-semibold" aria-label={SITE.name}>
-            <span aria-hidden className="text-lg">🩺</span>
-            <span className="hidden sm:inline">{SITE.name}</span>
-          </Link>
+          <Logo />
           <DashboardNav />
         </div>
       </header>

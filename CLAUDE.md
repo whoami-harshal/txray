@@ -1,4 +1,4 @@
-# Transaction Doctor (txdoctor)
+# TxRay (repo folder: txdoctor)
 
 Solo-dev Solana transaction monitoring: SDK wraps a send call -> backend tracks
 whether each tx landed/failed/expired and why -> dashboard + free "Checkup" page.
@@ -6,7 +6,7 @@ whether each tx landed/failed/expired and why -> dashboard + free "Checkup" page
 ## Layout
 - `web/` — Next.js 16 (App Router, TS, Tailwind v4, shadcn/ui) + Supabase. Dashboard, API routes, tracker cron.
   Next 16 has breaking changes: read `web/node_modules/next/dist/docs/` before using a Next API.
-- `sdk/` — `@txdoctor/sdk`, TypeScript, built with tsup (ESM + CJS), zero runtime deps.
+- `sdk/` — `@txray/sdk`, TypeScript, built with tsup (ESM + CJS), zero runtime deps.
 - `scripts/` — devnet test scripts.
 
 ## Rules

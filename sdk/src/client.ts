@@ -10,10 +10,10 @@ import { extractTxInfo } from "./parse";
 
 export type SendPath = "sender" | "rpc" | "other";
 
-export interface TxDoctorOptions {
+export interface TxRayOptions {
   /** Project API key, starts with "txd_" */
   apiKey: string;
-  /** Defaults to the hosted Transaction Doctor */
+  /** Defaults to the hosted TxRay */
   endpoint?: string;
   /** Log SDK activity with console.debug */
   debug?: boolean;
@@ -51,7 +51,7 @@ export interface TxEvent {
   last_valid_block_height?: string;
 }
 
-export interface TxDoctor {
+export interface TxRay {
   /**
    * Wrap your send call. Returns exactly what `sendFn` returns and rethrows
    * exactly what it throws. Tracking never throws or blocks.
@@ -75,7 +75,7 @@ function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-export function createTxDoctor(options: TxDoctorOptions): TxDoctor {
+export function createTxRay(options: TxRayOptions): TxRay {
   const apiKey = options?.apiKey ?? "";
   const endpoint = (options?.endpoint ?? DEFAULT_ENDPOINT).replace(/\/+$/, "");
   const debug = !!options?.debug;
@@ -90,7 +90,7 @@ export function createTxDoctor(options: TxDoctorOptions): TxDoctor {
   const log = (...args: unknown[]) => {
     if (debug) {
       try {
-        console.debug("[txdoctor]", ...args);
+        console.debug("[txray]", ...args);
       } catch {
         /* ignore */
       }

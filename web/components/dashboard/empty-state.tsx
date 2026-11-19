@@ -9,11 +9,11 @@ export function EmptyState({ title, children }: { title: string; children?: Reac
   );
 }
 
-export const SDK_SNIPPET = `import { createTxDoctor } from "@txdoctor/sdk";
+export const SDK_SNIPPET = `import { createTxRay } from "@txray/sdk";
 
-const doctor = createTxDoctor({ apiKey: process.env.TXDOCTOR_API_KEY });
+const txray = createTxRay({ apiKey: process.env.TXRAY_API_KEY });
 
-await doctor.trackSend(() => connection.sendRawTransaction(tx.serialize()), {
+await txray.trackSend(() => connection.sendRawTransaction(tx.serialize()), {
   transaction: tx,
   label: "swap",
 });`;
