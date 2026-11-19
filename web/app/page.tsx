@@ -11,7 +11,10 @@ export default function Home() {
         See which of your Solana transactions land, fail, or expire, and exactly why. One line of SDK, a dashboard
         with fixes in plain English.
       </p>
-      <div className="mt-8 flex gap-3">
+      <div className="mt-8 flex flex-wrap gap-3">
+        <Link href="/checkup" className="rounded-lg border bg-background px-4 py-2 text-sm font-medium hover:bg-muted">
+          Run a free checkup
+        </Link>
         <Link href="/dashboard" className="rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background hover:bg-foreground/90">
           Open dashboard
         </Link>

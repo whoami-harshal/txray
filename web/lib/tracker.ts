@@ -1,6 +1,7 @@
 import { classifyError, rawError, type ErrorCategory } from "@/lib/classify";
 import type { SignatureStatus, SolanaRpc, TransactionResult } from "@/lib/solana/rpc";
 import { isValidSignature } from "@/lib/solana/signature";
+import { readComputeBudget } from "@/lib/solana/compute-budget";
 
 export interface PendingRow {
   id: string;
@@ -8,6 +9,8 @@ export interface PendingRow {
   signature: string;
   sent_at: string;
   last_valid_block_height: number | string | null;
+  /** From the SDK; null when it couldn't read one (e.g. v1 transactions) */
+  cu_limit?: number | null;
 }
 
 export type FinalStatus = "success" | "failed" | "expired" | "unknown";
@@ -24,6 +27,8 @@ export interface RowUpdate {
   confirm_ms: number | null;
   fee_lamports: number | null;
   cu_consumed: number | null;
+  /** Explicit CU limit: on-chain value when known, else what the SDK sent */
+  cu_limit: number | null;
   error_category: ErrorCategory | null;
   error_raw: unknown;
 }
@@ -78,6 +83,7 @@ function base(row: PendingRow): Omit<RowUpdate, "status"> {
     confirm_ms: null,
     fee_lamports: null,
     cu_consumed: null,
+    cu_limit: row.cu_limit ?? null,
     error_category: null,
     error_raw: null,
   };
@@ -98,6 +104,8 @@ export function landedUpdate(row: PendingRow, status: SignatureStatus, tx: Trans
     confirm_ms: blockTime !== null && !Number.isNaN(sentMs) ? Math.max(0, blockTime * 1000 - sentMs) : null,
     fee_lamports: meta?.fee ?? null,
     cu_consumed: meta?.computeUnitsConsumed ?? null,
+    // The landed tx is the source of truth (covers v1 transactionConfig, which the SDK can't parse)
+    cu_limit: readComputeBudget(tx?.transaction?.message)?.cuLimit ?? row.cu_limit ?? null,
     error_category: err ? classifyError(err, logs) : null,
     error_raw: err ? rawError(err, logs) : null,
   };

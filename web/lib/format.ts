@@ -58,5 +58,6 @@ export function failureTone(rate: number | null): Tone {
 /** Round a suggested CU limit up to the next 1,000. */
 export function suggestCuLimit(p95Consumed: number | null): number | null {
   if (!p95Consumed) return null;
-  return Math.min(1_400_000, Math.ceil((p95Consumed * 1.1) / 1000) * 1000);
+  // Round first: 100000 * 1.1 is 110000.00000000001 in floating point.
+  return Math.min(1_400_000, Math.ceil(Math.round(p95Consumed * 1.1) / 1000) * 1000);
 }

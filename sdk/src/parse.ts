@@ -57,9 +57,19 @@ class Reader {
   }
 }
 
+/** First byte of a v1 transaction/message (SIMD-0385). Its layout differs from legacy/v0. */
+const V1_PREFIX = 0x81;
+
+class UnsupportedVersion extends Error {}
+
 function parseMessage(r: Reader): { accountKeys: string[]; ixs: Ix[] } {
   // Versioned messages set the high bit of the first byte.
-  if (r.peek() & 0x80) r.u8();
+  if (r.peek() & 0x80) {
+    const version = r.u8() & 0x7f;
+    // v1 moves compute settings into a config block with a different layout. Rather than guess its
+    // byte layout, skip it: the tracker reads the CU limit from the landed transaction instead.
+    if (version !== 0) throw new UnsupportedVersion(`message version ${version}`);
+  }
   r.take(3); // header
   const numKeys = r.shortVec();
   const accountKeys: string[] = [];
@@ -82,6 +92,9 @@ function parseMessage(r: Reader): { accountKeys: string[]; ixs: Ix[] } {
 
 /** Parse a raw serialized (wire-format) transaction. */
 function parseWireTransaction(bytes: Uint8Array): { signature?: string; ixs: Ix[] } {
+  // v1 puts the message first and signatures last. A legacy/v0 tx starts with a small signature
+  // count, which can never be 0x81, so this check is unambiguous.
+  if (bytes[0] === V1_PREFIX) return { ixs: [] };
   const r = new Reader(bytes);
   const numSigs = r.shortVec();
   const sigs: Uint8Array[] = [];
@@ -179,10 +192,12 @@ export function extractTxInfo(tx: unknown): TxInfo {
 
     // @solana/kit signed transaction
     if (isBytes(t.messageBytes)) {
-      const { accountKeys, ixs } = parseMessage(new Reader(t.messageBytes));
       const sigs = (t.signatures ?? {}) as Record<string, unknown>;
+      // kit keeps signatures in signer order, fee payer first: a safe fallback if parsing fails.
+      info.signature = sigToString(Object.values(sigs)[0]);
+      const { accountKeys, ixs } = parseMessage(new Reader(t.messageBytes));
       const feePayer = accountKeys[0];
-      info.signature = sigToString(feePayer ? sigs[feePayer] : undefined);
+      info.signature = sigToString(feePayer ? sigs[feePayer] : undefined) ?? info.signature;
       analyzeInstructions(ixs, info);
       return info;
     }

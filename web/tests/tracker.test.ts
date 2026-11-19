@@ -21,7 +21,7 @@ function memoryStore(rows: PendingRow[]) {
 }
 
 const names = new Map<string, string>();
-for (const n of ["ok", "fail", "expired", "waiting", "nolvbh-old", "nolvbh-new", "processed-only", "a", "b", "late", ...Array.from({ length: 10 }, (_, i) => `s${i}`)]) names.set(sig(n), n);
+for (const n of ["v1", "sdk", "ok", "fail", "expired", "waiting", "nolvbh-old", "nolvbh-new", "processed-only", "a", "b", "late", ...Array.from({ length: 10 }, (_, i) => `s${i}`)]) names.set(sig(n), n);
 
 function fakeRpc(opts: {
   blockHeight: number;
@@ -37,6 +37,9 @@ function fakeRpc(opts: {
     },
     getBlockHeight: async () => (requests++, opts.blockHeight),
     getSignatureStatuses: async (sigs) => (requests++, sigs.map((s) => opts.statuses[name(s)] ?? null)),
+    getSignaturesForAddress: async () => [],
+    getTransactionsForAddress: async () => [],
+    getAccountInfo: async () => null,
     getTransaction: async (sig) => {
       requests++;
       if (opts.txError) throw new Error("boom");
@@ -121,6 +124,28 @@ describe("runTracker", () => {
     // Every update carries the same keys (safe bulk upsert)
     const keys = Object.keys(saved[0]!).sort().join();
     expect(saved.every((u) => Object.keys(u).sort().join() === keys)).toBe(true);
+  });
+
+  it("fills cu_limit from the landed tx (v1 transactionConfig), keeping the SDK value otherwise", async () => {
+    const { store, saved } = memoryStore([{ ...row("v1", 20_000), cu_limit: null }, { ...row("sdk", 20_000), cu_limit: 300_000 }]);
+    const v1Tx: TransactionResult = {
+      slot: 9,
+      blockTime: null,
+      transaction: {
+        signatures: [sig("v1")],
+        message: { accountKeys: ["P", "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4"], instructions: [], transactionConfig: { computeUnitLimit: 145_656, priorityFee: 1457 } },
+      },
+      meta: { err: null, fee: 6457, computeUnitsConsumed: 121_642 },
+    };
+    const rpc = fakeRpc({
+      blockHeight: 1,
+      statuses: { v1: confirmed(9), sdk: confirmed(10) },
+      txs: { v1: v1Tx, sdk: { slot: 10, blockTime: null, meta: { err: null, fee: 5000 } } },
+    });
+    await runTracker({ store, rpc, now: () => NOW });
+    const by = Object.fromEntries(saved.map((u) => [u.id, u]));
+    expect(by.v1!.cu_limit).toBe(145_656);
+    expect(by.sdk!.cu_limit).toBe(300_000);
   });
 
   it("leaves landed txs pending when getTransaction has no details yet or errors", async () => {

@@ -8,7 +8,7 @@ export function supabaseTrackerStore(): TrackerStore {
     async loadPending(limit) {
       const { data, error } = await db
         .from("tx_events")
-        .select("id, project_id, signature, sent_at, last_valid_block_height")
+        .select("id, project_id, signature, sent_at, last_valid_block_height, cu_limit")
         .eq("status", "pending")
         .order("created_at", { ascending: true })
         .limit(limit);

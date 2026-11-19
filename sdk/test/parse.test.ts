@@ -162,6 +162,21 @@ describe("extractTxInfo: @solana/kit", () => {
   });
 });
 
+describe("extractTxInfo: v1 transactions", () => {
+  it("doesn't guess at the v1 layout: no bogus compute values", () => {
+    // A v1 wire tx starts with 0x81; bytes after it must not be read as a v0 message.
+    const v1 = new Uint8Array([0x81, 1, 0, 1, 2, 0xff, 0xff, 0xff, 0xff, 0x02, 0x40, 0x0d, 0x03, 0x00]);
+    expect(extractTxInfo(v1)).toEqual({});
+  });
+
+  it("still finds the kit signature when the message is v1", () => {
+    const sig = new Uint8Array(64).fill(5);
+    const info = extractTxInfo({ messageBytes: new Uint8Array([0x81, 1, 2, 3]), signatures: { Payer: sig } });
+    expect(info.signature).toBe(encodeBase58(sig));
+    expect(info.cuLimit).toBeUndefined();
+  });
+});
+
 describe("extractTxInfo: garbage in", () => {
   it("never throws", () => {
     const junk: unknown[] = [
