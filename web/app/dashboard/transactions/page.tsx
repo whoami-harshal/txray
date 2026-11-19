@@ -21,7 +21,7 @@ import { int, ms, sol, shortSig } from "@/lib/format";
 import { getViewerProjectIds } from "@/lib/scope";
 import { CATEGORY_LABEL } from "@/lib/tips";
 
-export const metadata: Metadata = { title: "Transactions · Transaction Doctor" };
+export const metadata: Metadata = { title: "Transactions" };
 
 export default function TransactionsPage({ searchParams }: PageProps<"/dashboard/transactions">) {
   return (

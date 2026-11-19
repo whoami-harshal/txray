@@ -15,7 +15,7 @@ import { failureTone, int, pct, sol, TONE_TEXT, type Tone } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Transaction health report · Transaction Doctor",
+  title: "Transaction health report",
   description: "Failure rate, failure reasons, fees and compute waste for a Solana program or wallet.",
 };
 

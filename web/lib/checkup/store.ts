@@ -6,7 +6,26 @@ import { newSlug } from "@/lib/checkup/slug";
 
 export const CHECKUPS_PER_IP_PER_HOUR = 3;
 export const CACHE_MS = 60 * 60_000;
+export const DEFAULT_DAILY_LIMIT = 150;
 
+export function dailyLimit(): number {
+  const n = Number(process.env.CHECKUP_DAILY_LIMIT);
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : DEFAULT_DAILY_LIMIT;
+}
+
+/**
+ * Site-wide cap on fresh checkups in the last 24h, so a viral day can't burn the month's
+ * Helius credits. Counts the same rows the per-IP limit records.
+ */
+export async function underDailyLimit(): Promise<boolean> {
+  const since = new Date(Date.now() - 86_400_000).toISOString();
+  const { count, error } = await supabaseAdmin()
+    .from("checkup_requests")
+    .select("id", { count: "exact", head: true })
+    .gte("created_at", since);
+  if (error) throw error;
+  return (count ?? 0) < dailyLimit();
+}
 
 /** Salted hash so the DB never holds raw IPs. */
 export function hashIp(ip: string): string {
@@ -67,6 +86,34 @@ export async function saveCheckup(report: CheckupReport): Promise<string> {
     if (error.code !== "23505") throw error; // retry only on slug collision
   }
   throw new Error("could not allocate a slug");
+}
+
+export interface RecentCheckup {
+  slug: string;
+  address: string;
+  score: number;
+  failureRate: number;
+  kind: string;
+  created_at: string;
+}
+
+/** Latest reports, one per address, for the "recent checkups" list. */
+export async function getRecentCheckups(limit = 6): Promise<RecentCheckup[]> {
+  const { data, error } = await supabaseAdmin()
+    .from("checkups")
+    .select("slug, address, created_at, score:report->score, failureRate:report->failureRate, kind:report->>kind")
+    .order("created_at", { ascending: false })
+    .limit(50);
+  if (error) throw error;
+  const seen = new Set<string>();
+  const out: RecentCheckup[] = [];
+  for (const row of (data ?? []) as unknown as RecentCheckup[]) {
+    if (seen.has(row.address)) continue;
+    seen.add(row.address);
+    out.push({ ...row, score: Number(row.score), failureRate: Number(row.failureRate) });
+    if (out.length >= limit) break;
+  }
+  return out;
 }
 
 export async function getCheckup(slug: string): Promise<{ report: CheckupReport; created_at: string } | null> {

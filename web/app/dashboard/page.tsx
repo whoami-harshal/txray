@@ -22,7 +22,7 @@ import {
 } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
-export const metadata: Metadata = { title: "Overview · Transaction Doctor" };
+export const metadata: Metadata = { title: "Overview" };
 
 export default function OverviewPage({ searchParams }: PageProps<"/dashboard">) {
   return (

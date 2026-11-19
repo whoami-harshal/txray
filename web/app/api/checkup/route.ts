@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { analyzeCheckup } from "@/lib/checkup/analyze";
 import { fetchCheckupData } from "@/lib/checkup/fetch";
-import { clientIp, findCached, hashIp, saveCheckup, takeRateLimit } from "@/lib/checkup/store";
+import { clientIp, findCached, hashIp, saveCheckup, takeRateLimit, underDailyLimit } from "@/lib/checkup/store";
 import { createRpc } from "@/lib/solana/rpc";
 import { isValidAddress } from "@/lib/solana/signature";
 
@@ -34,6 +34,16 @@ export async function POST(request: Request) {
     // Same address within the hour: reuse the report (free, doesn't count against the limit).
     const cached = await findCached(address);
     if (cached) return Response.json({ slug: cached.slug, cached: true });
+
+    if (!(await underDailyLimit())) {
+      return Response.json(
+        {
+          error:
+            "Today's free checkups are all used up (they run on a free RPC plan). Try again tomorrow, or open a report someone already shared.",
+        },
+        { status: 429, headers: { "retry-after": "3600" } },
+      );
+    }
 
     const limit = await takeRateLimit(hashIp(clientIp(request)));
     if (!limit.ok) {
