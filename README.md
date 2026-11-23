@@ -2,6 +2,8 @@
 
 **TX-ray your Solana txs.** Find out which of them land, fail, or expire, and why.
 
+**Live:** https://txray-pi.vercel.app · [Free checkup](https://txray-pi.vercel.app/checkup) · [Leaderboard](https://txray-pi.vercel.app/leaderboard) · [Demo dashboard](https://txray-pi.vercel.app/dashboard)
+
 A "sent" Solana transaction can still fail on-chain, expire before it lands, or quietly vanish. Most apps never find out which, or why. TxRay shows you.
 
 ## What it does

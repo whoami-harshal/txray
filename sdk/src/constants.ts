@@ -1,5 +1,5 @@
-/** Set to the deployed URL before publishing (Step 10). */
-export const DEFAULT_ENDPOINT = "https://txray.vercel.app";
+/** The hosted TxRay deployment. (txray.vercel.app is an unrelated project.) */
+export const DEFAULT_ENDPOINT = "https://txray-pi.vercel.app";
 
 export const COMPUTE_BUDGET_PROGRAM = "ComputeBudget111111111111111111111111111111";
 export const SYSTEM_PROGRAM = "11111111111111111111111111111111";
